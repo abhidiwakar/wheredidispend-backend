@@ -15,8 +15,8 @@ jobs:
 
       - name: Add secrets
         run: |
-          mkdir -p ./secrets/firebase
-          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > ./secrets/firebase/service-account-key.json
+          mkdir -p ./src/secrets/firebase
+          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > ./src/secrets/firebase/service-account-key.json
 
       - name: Build application
         run: npm run build
