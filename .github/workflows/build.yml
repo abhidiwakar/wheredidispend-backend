@@ -1,0 +1,30 @@
+name: Deploy WhereDidISpend to EC2
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload code to EC2 using SCP
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+          scp -o StrictHostKeyChecking=no -i private_key -rp dist package*.json public views ${EC2_USERNAME}@${EC2_HOST}:/home/${EC2_USERNAME}/wheredidispend
+
+      - name: Remote commands on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${EC2_USERNAME}@${EC2_HOST} '
+            cd wheredidispend &&
+            npm install &&
+            pm2 restart main
+          '
