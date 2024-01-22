@@ -16,19 +16,19 @@ jobs:
       - name: Add secrets
         run: |
           mkdir -p ./src/secrets/firebase
-          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > ./src/secrets/firebase/service-account-key.json
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > ./src/secrets/firebase/service-account-key.json
 
       - name: Build application
         run: npm run build
 
       - name: Upload code to EC2 using SCP
         run: |
-          echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
-          scp -o StrictHostKeyChecking=no -i private_key -rp dist package*.json public views ${EC2_USERNAME}@${EC2_HOST}:/home/${EC2_USERNAME}/wheredidispend
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key && chmod 600 private_key
+          scp -o StrictHostKeyChecking=no -i private_key -rp dist package*.json public views ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/wheredidispend
 
       - name: Remote commands on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${EC2_USERNAME}@${EC2_HOST} '
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} '
             cd wheredidispend &&
             npm install &&
             pm2 restart main
