@@ -16,6 +16,36 @@ export class TransactionService {
     return this.transactionModel.create(createTransactionDto);
   }
 
+  averageSpending(uid: string) {
+    return this.transactionModel.aggregate([
+      {
+        $match: {
+          uid,
+        },
+      },
+      {
+        $group: {
+          _id: '$uid',
+          count: { $sum: 1 },
+          averageSpending: {
+            $avg: '$amount',
+          },
+        },
+      },
+      {
+        $match: {
+          count: { $gte: 3 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          averageSpending: 1,
+        },
+      },
+    ]);
+  }
+
   async findAll(
     uid: string,
     firstId: string | undefined,

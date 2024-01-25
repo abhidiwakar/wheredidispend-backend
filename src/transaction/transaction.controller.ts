@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -36,11 +37,13 @@ export class TransactionController {
     @Query('limit') pageSize: number,
     @User() user: IUser,
   ) {
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
-    // throw new InternalServerErrorException(
-    //   'Unable to fetch transactions right now! Please try again later.',
-    // );
     return this.transactionService.findAll(user.uid, firstId, lastId, pageSize);
+  }
+
+  @Get('get/average')
+  @Header('Cache-Control', 'max-age=3600')
+  async averageSpending(@User() user: IUser) {
+    return this.transactionService.averageSpending(user.uid);
   }
 
   @Get('get/:id')
