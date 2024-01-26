@@ -17,6 +17,12 @@ export class AppController {
     return {};
   }
 
+  @Get('v/new-features')
+  @Render('new-feature')
+  newFeatures() {
+    return {};
+  }
+
   @Get('v/terms-and-conditions')
   @Render('legal')
   termsAndConditions() {
