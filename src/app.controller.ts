@@ -24,13 +24,9 @@ export class AppController {
   }
 
   @Get('v/terms-and-conditions')
-  @Render('legal')
+  @Render('terms-and-conditions')
   termsAndConditions() {
-    return {
-      title: 'Terms and Conditions',
-      description: 'Terms and Conditions for WhereDidISpend app',
-      content: `<p>No content on this page yet! Check back later.</p>`,
-    };
+    return {};
   }
 
   @Get('v/delete-account')
@@ -89,6 +85,57 @@ export class AppController {
   @Render('whatsapp-index')
   whatsappIndex() {
     return {};
+  }
+
+  @Get('/v/about-us')
+  @Render('legal')
+  aboutUs() {
+    return {
+      title: 'About Us',
+      description: 'WhereDidISpend - About Us',
+      content: `<h2>About Us</h2>
+      <p>Welcome to WhereDidISpend! At WhereDidISpend, we understand the
+        importance of keeping track of your finances. Founded by Abhishek
+        Diwakar, a passionate software engineer, our mission is to simplify
+        expense management and make financial tracking accessible to everyone.</p>
+
+      <h5>Our Journey</h5>
+      <p>The idea for WhereDidISpend was born out of a desire to help
+        individuals take control of their spending habits. Abhishek Diwakar
+        leveraged his expertise in software development to create a
+        user-friendly mobile application that allows users to effortlessly
+        monitor their expenses. Since its inception, WhereDidISpend has evolved
+        into a powerful tool that empowers users to stay on top of their
+        finances.</p>
+
+      <h5>Our App</h5>
+      <p>WhereDidISpend is designed to make tracking your expenses as simple and
+        intuitive as possible. With our app, you can easily add details of your
+        expenditures, including the amount and the purpose of the expense.</p>
+
+      <h5>Introducing "Add via WhatsApp"</h5>
+      <p>We believe that everyone should have access to effective financial
+        tools, regardless of the platform they use. That's why we introduced the
+        "Add via WhatsApp" feature. For users who can't access the
+        WhereDidISpend app on their platform, such as iOS users, this feature
+        offers a seamless solution.</p>
+      <p>By opting in for "Add via WhatsApp," users can share screenshots of
+        their UPI transactions directly to our WhatsApp business account. Our
+        advanced technology will extract the necessary information from the
+        screenshot and automatically update the user's WhereDidISpend account
+        with the relevant transaction details.</p>
+
+      <h5>Our Commitment</h5>
+      <p>At WhereDidISpend, we are committed to providing a secure, reliable,
+        and user-friendly experience. We prioritize your privacy and ensure that
+        your data is handled with the utmost care and confidentiality. Our goal
+        is to help you manage your finances efficiently and achieve your
+        financial goals.</p>
+      <p>Join us on this journey to financial empowerment. Download
+        WhereDidISpend today and take the first step towards better financial
+        management.</p>
+      <p>Thank you for choosing WhereDidISpend!</p>`,
+    };
   }
 
   @Get('v/whatsapp/opt-in-out-instructions')
