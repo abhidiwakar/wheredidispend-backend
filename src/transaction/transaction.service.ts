@@ -1,19 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './schema/transaction.schema';
+import { QueuedTransaction } from './interface/queued-transaction.interface';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class TransactionService {
+  private readonly logger = new Logger(TransactionService.name);
   constructor(
     @InjectModel(Transaction.name)
     private transactionModel: Model<Transaction>,
+    @InjectFirebaseAdmin()
+    private readonly firebase: FirebaseAdmin,
   ) {}
 
   create(createTransactionDto: CreateTransactionDto) {
     return this.transactionModel.create(createTransactionDto);
+  }
+
+  async processQueuedTransactions(data: QueuedTransaction) {
+    this.logger.debug('TRANSACTION DATA: ', data);
+    const user = await this.firebase.auth.getUserByPhoneNumber(`+${data.from}`);
+
+    return await this.create({
+      amount: parseInt(data.transactionData.amount_paid),
+      currency: data.transactionData.currency,
+      date: dayjs(data.transactionData.datetime).toDate(),
+      description: `Paid to ${data.transactionData.paid_to} (${data.transactionData.receiver_upi_id}) on ${data.transactionData.upi_app} app.\nUPI Reference ID: ${data.transactionData.upi_reference_id}`,
+      uid: user.uid,
+    });
   }
 
   averageSpending(uid: string) {

@@ -8,6 +8,9 @@ import * as serviceAccount from './secrets/firebase/service-account-key.json';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from './user/user.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { BullModule } from '@nestjs/bull';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -17,12 +20,27 @@ import { UserModule } from './user/user.module';
         limit: 5,
       },
     ]),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        defaultJobOptions: {
+          removeOnComplete: true,
+        },
+        redis: {
+          maxRetriesPerRequest: 3,
+          host: configService.getOrThrow('REDIS_HOST'),
+          port: configService.getOrThrow('REDIS_PORT'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     FirebaseModule.forRoot({
       googleApplicationCredential: serviceAccount as unknown,
     }),
     TransactionModule,
     UserModule,
+    WhatsappModule,
   ],
   controllers: [AppController],
   providers: [

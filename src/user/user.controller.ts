@@ -1,32 +1,36 @@
-import { Controller, Delete, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Logger,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { IUser, User } from 'src/common/decorators/user.decorator';
+import { UpdateFirebaseUserDto } from './dto/update-firebase-user.dto';
 import { UserService } from './user.service';
 
 @UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
 
-  // @Post()
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.userService.create(createUserDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.userService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.userService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(+id, updateUserDto);
-  // }
+  @Patch('update')
+  async update(@User() { uid }: IUser, @Body() body: UpdateFirebaseUserDto) {
+    try {
+      await this.userService.updatePhoneNumber(uid, body.phoneNumber);
+      return {
+        message: 'User updated successfully!',
+      };
+    } catch (error) {
+      this.logger.error(error);
+      return {
+        message: 'Failed to update the user! Please try again later.',
+      };
+    }
+  }
 
   @Delete('delete')
   remove(@User() { uid }: IUser) {

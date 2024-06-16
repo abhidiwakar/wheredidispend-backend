@@ -1,29 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(
     @InjectFirebaseAdmin() private readonly firebase: FirebaseAdmin,
     private readonly transactionService: TransactionService,
   ) {}
 
-  // create(createUserDto: CreateUserDto) {
-  //   return 'This action adds a new user';
-  // }
+  getUserDetails(id: string) {
+    return this.firebase.auth.getUser(id);
+  }
 
-  // findAll() {
-  //   return `This action returns all user`;
-  // }
+  updatePhoneNumber(id: string, phone: string | null) {
+    return this.firebase.auth.updateUser(id, {
+      phoneNumber: phone,
+    });
+  }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
-
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+  async getUserByPhoneNumber(phone: string) {
+    return this.firebase.auth.getUserByPhoneNumber(phone);
+  }
 
   async remove(id: string) {
     try {
