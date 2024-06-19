@@ -27,9 +27,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           removeOnComplete: true,
         },
         redis: {
-          maxRetriesPerRequest: 3,
           host: configService.getOrThrow('REDIS_HOST'),
           port: configService.getOrThrow('REDIS_PORT'),
+          password: configService.get('REDIS_TOKEN'),
         },
       }),
       inject: [ConfigService],
