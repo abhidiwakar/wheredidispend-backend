@@ -7,6 +7,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './schema/transaction.schema';
 import { QueuedTransaction } from './interface/queued-transaction.interface';
 import * as dayjs from 'dayjs';
+import { S3Service } from 'src/s3.service';
 
 @Injectable()
 export class TransactionService {
@@ -16,6 +17,8 @@ export class TransactionService {
     private transactionModel: Model<Transaction>,
     @InjectFirebaseAdmin()
     private readonly firebase: FirebaseAdmin,
+
+    private readonly s3Service: S3Service,
   ) {}
 
   create(createTransactionDto: CreateTransactionDto) {
@@ -27,6 +30,24 @@ export class TransactionService {
     const user = await this.firebase.auth.getUserByPhoneNumber(`+${data.from}`);
 
     return await this.create({
+      metadata: [
+        {
+          name: 'UPI Reference ID',
+          data: data.transactionData.upi_reference_id,
+        },
+        {
+          name: 'Send To (Name)',
+          data: data.transactionData.paid_to,
+        },
+        {
+          name: 'Sent To (UPI ID)',
+          data: data.transactionData.receiver_upi_id,
+        },
+        {
+          name: 'UPI App',
+          data: data.transactionData.upi_app,
+        },
+      ],
       amount: parseInt(data.transactionData.amount_paid),
       currency: data.transactionData.currency,
       date: dayjs(data.transactionData.datetime).toDate(),
@@ -111,11 +132,20 @@ export class TransactionService {
     return result;
   }
 
-  findOne(uid: string, id: string) {
-    return this.transactionModel.findOne({
+  async findOne(uid: string, id: string) {
+    const result = await this.transactionModel.findOne({
       _id: id,
       uid,
     });
+    if (result.attachments.length > 0) {
+      const urls = [];
+      for (const attachment of result.attachments) {
+        const url = await this.s3Service.generatePresignedURL(attachment);
+        urls.push(url);
+      }
+      result.attachments = urls;
+    }
+    return result;
   }
 
   update(id: string, { uid, ...updateTransactionDto }: UpdateTransactionDto) {

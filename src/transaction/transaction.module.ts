@@ -6,6 +6,7 @@ import { Transaction, TransactionSchema } from './schema/transaction.schema';
 import { TransactionConsumer } from './transaction.consumer';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
+import { S3Service } from 'src/s3.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { TransactionService } from './transaction.service';
     }),
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, TransactionConsumer],
+  providers: [TransactionService, TransactionConsumer, S3Service],
   exports: [TransactionService],
 })
 export class TransactionModule {}
