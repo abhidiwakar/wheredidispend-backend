@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { IUser, User } from 'src/common/decorators/user.decorator';
+import { CreateAttachmentDto } from './dto/create-attachment.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionService } from './transaction.service';
@@ -28,6 +29,23 @@ export class TransactionController {
   ) {
     createTransactionDto.uid = user.uid;
     return this.transactionService.create(createTransactionDto);
+  }
+
+  @Post('add/attachment')
+  async attachment(@Body() body: CreateAttachmentDto, @User() user: IUser) {
+    const { keys } = body;
+    const urls = [];
+    for (const key of keys) {
+      const internalKey = `${user.uid}/attachments/${key}`;
+      const result = await this.transactionService.generateUploadPresignedUrl(
+        internalKey,
+      );
+      urls.push({
+        key: internalKey,
+        url: result,
+      });
+    }
+    return urls;
   }
 
   @Get('get')

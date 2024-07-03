@@ -1,4 +1,5 @@
 import {
+  CopyObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -19,7 +20,31 @@ export class S3Service {
     });
   }
 
-  async generatePresignedURL(key: string, bucket?: string): Promise<string> {
+  async generateUploadPresignedURL(key: string, bucket?: string) {
+    const command = new PutObjectCommand({
+      Bucket: bucket ?? process.env.AWS_S3_BUCKET_NAME,
+      Key: key,
+    });
+    return getSignedUrl(this.client, command, { expiresIn: 3600 });
+  }
+
+  async moveTmpObjectsToPermanentBucket(keys: string[], bucket?: string) {
+    return Promise.all(
+      keys.map((key) => {
+        const command = new CopyObjectCommand({
+          Bucket: bucket ?? process.env.AWS_S3_BUCKET_NAME,
+          CopySource: `${process.env.AWS_S3_TMP_BUCKET_NAME}/${key}`,
+          Key: key,
+        });
+        return this.client.send(command);
+      }),
+    );
+  }
+
+  async generateDownloadPresignedURL(
+    key: string,
+    bucket?: string,
+  ): Promise<string> {
     const command = new GetObjectCommand({
       Key: key,
       Bucket: bucket ?? process.env.AWS_S3_BUCKET_NAME,

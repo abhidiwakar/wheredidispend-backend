@@ -21,7 +21,19 @@ export class TransactionService {
     private readonly s3Service: S3Service,
   ) {}
 
-  create(createTransactionDto: CreateTransactionDto) {
+  generateUploadPresignedUrl(key: string, tmp = false) {
+    return this.s3Service.generateUploadPresignedURL(
+      key,
+      tmp ? process.env.AWS_S3_TMP_BUCKET_NAME : process.env.AWS_S3_BUCKET_NAME,
+    );
+  }
+
+  async create(createTransactionDto: CreateTransactionDto) {
+    // if ((createTransactionDto.attachments?.length ?? 0) > 0) {
+    //   await this.s3Service.moveTmpObjectsToPermanentBucket(
+    //     createTransactionDto.attachments,
+    //   );
+    // }
     return this.transactionModel.create(createTransactionDto);
   }
 
@@ -140,7 +152,9 @@ export class TransactionService {
     if (result.attachments.length > 0) {
       const urls = [];
       for (const attachment of result.attachments) {
-        const url = await this.s3Service.generatePresignedURL(attachment);
+        const url = await this.s3Service.generateDownloadPresignedURL(
+          attachment,
+        );
         urls.push(url);
       }
       result.attachments = urls;

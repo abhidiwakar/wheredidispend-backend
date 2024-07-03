@@ -42,4 +42,9 @@ export class CreateTransactionDto {
   @ValidateNested({ each: true })
   @Type(() => MetaData)
   metadata?: MetaData[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  attachments?: string[];
 }
