@@ -65,6 +65,7 @@ export class TransactionService {
       date: dayjs(data.transactionData.datetime).toDate(),
       description: `Paid to ${data.transactionData.paid_to} (${data.transactionData.receiver_upi_id}) on ${data.transactionData.upi_app} app.\nUPI Reference ID: ${data.transactionData.upi_reference_id}`,
       uid: user.uid,
+      attachments: [data.mediaKey],
     });
   }
 
