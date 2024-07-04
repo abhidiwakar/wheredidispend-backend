@@ -7,6 +7,7 @@ import { TransactionConsumer } from './transaction.consumer';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { S3Service } from 'src/s3.service';
+import { GroupModule } from './group/group.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { S3Service } from 'src/s3.service';
     BullModule.registerQueue({
       name: Constants.DataQueue,
     }),
+    GroupModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService, TransactionConsumer, S3Service],

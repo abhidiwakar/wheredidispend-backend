@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -16,18 +17,31 @@ import { CreateAttachmentDto } from './dto/create-attachment.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionService } from './transaction.service';
+import { GroupService } from './group/group.service';
 
 @UseGuards(AuthGuard)
 @Controller('transaction')
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly groupService: GroupService,
+  ) {}
 
   @Post('add')
-  create(
+  async create(
     @Body() createTransactionDto: CreateTransactionDto,
     @User() user: IUser,
   ) {
     createTransactionDto.uid = user.uid;
+    if (createTransactionDto.group) {
+      const groupData = await this.groupService.findOne(
+        createTransactionDto.group,
+        user.uid,
+      );
+      if (!groupData) {
+        throw new BadRequestException('Invalid Group!');
+      }
+    }
     return this.transactionService.create(createTransactionDto);
   }
 
@@ -70,12 +84,21 @@ export class TransactionController {
   }
 
   @Patch('update/:id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
     @User() user: IUser,
   ) {
     updateTransactionDto.uid = user.uid;
+    if (updateTransactionDto.group) {
+      const groupData = await this.groupService.findOne(
+        updateTransactionDto.group,
+        user.uid,
+      );
+      if (!groupData) {
+        throw new BadRequestException('Invalid Group!');
+      }
+    }
     return this.transactionService.update(id, updateTransactionDto);
   }
 

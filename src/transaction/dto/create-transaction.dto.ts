@@ -47,4 +47,8 @@ export class CreateTransactionDto {
   @IsArray()
   @IsString({ each: true })
   attachments?: string[];
+
+  @IsOptional()
+  @IsString()
+  group?: string;
 }

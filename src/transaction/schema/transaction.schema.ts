@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+import { Group } from '../group/schema/group.schema';
 
 export type TransactionDocument = HydratedDocument<Transaction>;
 
@@ -39,6 +40,9 @@ export class Transaction {
 
   @Prop({ default: [] })
   attachments: string[];
+
+  @Prop({ type: Types.ObjectId, ref: Group.name })
+  group?: Group;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
