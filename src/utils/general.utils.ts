@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import short from 'short-uuid';
+import { S3Service } from './s3.service';
 
 export const hashPassword = async (password: string): Promise<string> => {
   const saltRounds = 10;
@@ -18,4 +19,16 @@ export const comparePassword = async (
 export const generateShortId = (): string => {
   const translator = short();
   return translator.generate();
+};
+
+export const modifyTransactionDoc = async (doc: any, s3Service: S3Service) => {
+  if (doc && Array.isArray(doc.attachments) && doc.attachments.length > 0) {
+    const urls = [];
+    for (const attachment of doc.attachments) {
+      const url = await s3Service.generateDownloadPresignedURL(attachment);
+      urls.push(url);
+    }
+    doc.attachments = urls;
+  }
+  return doc;
 };

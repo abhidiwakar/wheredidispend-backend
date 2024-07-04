@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './schema/transaction.schema';
 import { QueuedTransaction } from './interface/queued-transaction.interface';
 import * as dayjs from 'dayjs';
-import { S3Service } from 'src/s3.service';
+import { S3Service } from 'src/utils/s3.service';
 
 @Injectable()
 export class TransactionService {
@@ -153,16 +153,11 @@ export class TransactionService {
         uid,
       })
       .populate('group', { name: true });
-    if (result.attachments.length > 0) {
-      const urls = [];
-      for (const attachment of result.attachments) {
-        const url = await this.s3Service.generateDownloadPresignedURL(
-          attachment,
-        );
-        urls.push(url);
-      }
-      result.attachments = urls;
+
+    if (!result) {
+      throw new BadRequestException('Invalid ID');
     }
+
     return result;
   }
 
@@ -173,8 +168,14 @@ export class TransactionService {
         uid,
       },
       {
-        $set: updateTransactionDto,
+        $set: {
+          ...updateTransactionDto,
+          group: updateTransactionDto.group
+            ? new Types.ObjectId(updateTransactionDto.group)
+            : undefined,
+        },
         $unset: {
+          group: updateTransactionDto.group ? undefined : 1,
           description: updateTransactionDto.description ? undefined : 1,
         },
       },
@@ -194,6 +195,12 @@ export class TransactionService {
   removeAll(uid: string) {
     return this.transactionModel.deleteMany({
       uid,
+    });
+  }
+
+  countTransactionByGroupId(groupId: string) {
+    return this.transactionModel.countDocuments({
+      group: groupId,
     });
   }
 }

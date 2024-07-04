@@ -9,11 +9,11 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { IUser, User } from 'src/common/decorators/user.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
-import { GroupService } from './group.service';
-import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { GroupService } from './group.service';
 
 @UseGuards(AuthGuard)
 @Controller('transaction/group')

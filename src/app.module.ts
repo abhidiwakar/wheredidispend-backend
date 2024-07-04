@@ -11,6 +11,7 @@ import { UserModule } from './user/user.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     TransactionModule,
     UserModule,
     WhatsappModule,
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [

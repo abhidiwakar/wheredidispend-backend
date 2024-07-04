@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Group } from './schema/group.schema';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -36,17 +36,49 @@ export class GroupService {
     });
   }
 
-  findAll(uid: string) {
-    return this.groupModel.find({
+  findAll(uid: string, id?: string) {
+    const match: Record<string, unknown> = {
       uid,
-    });
+    };
+
+    if (id) {
+      match['_id'] = new Types.ObjectId(id);
+    }
+
+    return this.groupModel.aggregate([
+      {
+        $match: match,
+      },
+      {
+        $lookup: {
+          from: 'transactions',
+          localField: '_id',
+          foreignField: 'group',
+          as: 'transactions',
+        },
+      },
+      {
+        $addFields: {
+          transactionCount: {
+            $size: '$transactions',
+          },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          transactionCount: 1,
+        },
+      },
+    ]);
   }
 
-  findOne(id: string, uid: string) {
-    return this.groupModel.findOne({
-      uid,
-      _id: id,
-    });
+  async findOne(id: string, uid: string) {
+    const result = await this.findAll(uid, id);
+
+    return result?.[0];
   }
 
   update(id: string, updateGroupDto: UpdateGroupDto, uid: string) {
