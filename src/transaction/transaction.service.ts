@@ -132,6 +132,7 @@ export class TransactionService {
       .sort({
         createdAt: -1,
       })
+      .populate('group', { name: true })
       .exec();
     // const total = await this.transactionModel
     //   .countDocuments(filterQuery)
@@ -146,10 +147,12 @@ export class TransactionService {
   }
 
   async findOne(uid: string, id: string) {
-    const result = await this.transactionModel.findOne({
-      _id: id,
-      uid,
-    });
+    const result = await this.transactionModel
+      .findOne({
+        _id: id,
+        uid,
+      })
+      .populate('group', { name: true });
     if (result.attachments.length > 0) {
       const urls = [];
       for (const attachment of result.attachments) {
