@@ -34,7 +34,12 @@ export class TransactionService {
     //     createTransactionDto.attachments,
     //   );
     // }
-    return this.transactionModel.create(createTransactionDto);
+    return this.transactionModel.create({
+      ...createTransactionDto,
+      group: createTransactionDto.group
+        ? new Types.ObjectId(createTransactionDto.group)
+        : undefined,
+    });
   }
 
   async processQueuedTransactions(data: QueuedTransaction) {
