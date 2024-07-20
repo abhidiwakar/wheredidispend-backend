@@ -67,9 +67,38 @@ export class TransactionController {
     @Query('firstId') firstId: string | undefined,
     @Query('lastId') lastId: string | undefined,
     @Query('limit') pageSize: number,
+    @Query('orderBy') orderBy: string,
+    @Query('order') order: string,
     @User() user: IUser,
   ) {
-    return this.transactionService.findAll(user.uid, firstId, lastId, pageSize);
+    return this.transactionService.findAll(
+      user.uid,
+      firstId,
+      lastId,
+      pageSize,
+      orderBy,
+      order,
+    );
+  }
+
+  @Get('get/count')
+  async getCount(@User() user: IUser) {
+    const count = await this.transactionService.countTransactionByUserId(
+      user.uid,
+    );
+    return {
+      count,
+    };
+  }
+
+  @Get('get/graph')
+  async getGraph(@User() user: IUser) {
+    const count = await this.transactionService.countTransactionByUserId(
+      user.uid,
+    );
+    return {
+      count,
+    };
   }
 
   @Get('get/average')

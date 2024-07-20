@@ -68,7 +68,9 @@ export class TransactionService {
       amount: parseInt(data.transactionData.amount_paid),
       currency: data.transactionData.currency,
       date: dayjs(data.transactionData.datetime).toDate(),
-      description: `Paid to ${data.transactionData.paid_to} (${data.transactionData.receiver_upi_id}) on ${data.transactionData.upi_app} app.\nUPI Reference ID: ${data.transactionData.upi_reference_id}`,
+      description:
+        data.image.caption ??
+        `Paid to ${data.transactionData.paid_to} (${data.transactionData.receiver_upi_id}) on ${data.transactionData.upi_app} app.\nUPI Reference ID: ${data.transactionData.upi_reference_id}`,
       uid: user.uid,
       attachments: [data.mediaKey],
     });
@@ -109,6 +111,8 @@ export class TransactionService {
     firstId: string | undefined,
     lastId: string | undefined,
     pageSize = 10,
+    orderBy = 'createdAt',
+    order = 'desc',
   ) {
     // const skip = (page - 1) * pageSize;
     const filterQuery = {
@@ -135,7 +139,7 @@ export class TransactionService {
       // .skip(skip)
       .limit(pageSize)
       .sort({
-        createdAt: -1,
+        [orderBy]: order === 'desc' ? -1 : 1,
       })
       .populate('group', { name: true })
       .exec();
@@ -200,6 +204,12 @@ export class TransactionService {
   removeAll(uid: string) {
     return this.transactionModel.deleteMany({
       uid,
+    });
+  }
+
+  countTransactionByUserId(userId: string) {
+    return this.transactionModel.countDocuments({
+      uid: userId,
     });
   }
 
