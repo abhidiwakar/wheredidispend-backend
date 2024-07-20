@@ -249,6 +249,11 @@ export class TransactionService {
           totalAmount: 1,
         },
       },
+      {
+        $sort: {
+          date: 1,
+        },
+      },
     ]);
   }
 
