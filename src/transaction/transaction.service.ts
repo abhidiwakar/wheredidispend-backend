@@ -207,6 +207,51 @@ export class TransactionService {
     });
   }
 
+  findTransactionSumWithDateGroup(
+    uid: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    const match = {
+      uid,
+    };
+    const dateFilter = {};
+    if (startDate) {
+      dateFilter['$gte'] = startDate;
+    }
+    if (endDate) {
+      dateFilter['$lt'] = endDate;
+    }
+    if (Object.values(dateFilter).length > 0) {
+      match['date'] = dateFilter;
+    }
+    return this.transactionModel.aggregate([
+      {
+        $match: match,
+      },
+      {
+        $addFields: {
+          dateOnly: {
+            $dateToString: { format: '%Y-%m-%d', date: '$date' },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$dateOnly',
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          totalAmount: 1,
+        },
+      },
+    ]);
+  }
+
   countTransactionByUserId(userId: string) {
     return this.transactionModel.countDocuments({
       uid: userId,

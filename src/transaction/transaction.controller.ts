@@ -93,12 +93,10 @@ export class TransactionController {
 
   @Get('get/graph')
   async getGraph(@User() user: IUser) {
-    const count = await this.transactionService.countTransactionByUserId(
+    const data = await this.transactionService.findTransactionSumWithDateGroup(
       user.uid,
     );
-    return {
-      count,
-    };
+    return data;
   }
 
   @Get('get/average')
