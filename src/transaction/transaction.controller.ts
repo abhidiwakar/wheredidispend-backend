@@ -91,6 +91,16 @@ export class TransactionController {
     };
   }
 
+  @Get('get/total')
+  async getTotal(@User() user: IUser) {
+    const total = await this.transactionService.sumTransactionAmountByUserId(
+      user.uid,
+    );
+    return {
+      total: total?.[0]?.totalAmount ?? 0,
+    };
+  }
+
   @Get('get/graph')
   async getGraph(@User() user: IUser) {
     const data = await this.transactionService.findTransactionSumWithDateGroup(

@@ -263,6 +263,27 @@ export class TransactionService {
     });
   }
 
+  sumTransactionAmountByUserId(userId: string) {
+    return this.transactionModel.aggregate([
+      {
+        $match: {
+          uid: userId,
+        },
+      },
+      {
+        $group: {
+          _id: '$uid',
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+    ]);
+  }
+
   countTransactionByGroupId(groupId: string) {
     return this.transactionModel.countDocuments({
       group: groupId,
