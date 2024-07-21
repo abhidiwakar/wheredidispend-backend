@@ -67,7 +67,7 @@ export class TransactionService {
       ],
       amount: parseInt(data.transactionData.amount_paid),
       currency: data.transactionData.currency,
-      date: dayjs(data.transactionData.datetime).toDate(),
+      date: data.transactionData.datetime,
       description:
         data.image.caption ??
         `Paid to ${data.transactionData.paid_to} (${data.transactionData.receiver_upi_id}) on ${data.transactionData.upi_app} app.\nUPI Reference ID: ${data.transactionData.upi_reference_id}`,

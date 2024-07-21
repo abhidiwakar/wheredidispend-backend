@@ -30,7 +30,7 @@ export class Transaction {
   amount: number;
 
   @Prop({ required: true })
-  date: Date;
+  date: string;
 
   @Prop({ required: true, default: 'INR' })
   currency: string;

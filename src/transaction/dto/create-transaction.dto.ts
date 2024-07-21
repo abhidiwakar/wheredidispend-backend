@@ -31,7 +31,7 @@ export class CreateTransactionDto {
   amount: number;
 
   @IsDateString()
-  date: Date;
+  date: string;
 
   @IsOptional()
   @IsISO4217CurrencyCode()
