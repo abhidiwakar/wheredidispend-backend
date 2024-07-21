@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Group } from '../group/schema/group.schema';
+import * as dayjs from 'dayjs';
 
 export type TransactionDocument = HydratedDocument<Transaction>;
 
@@ -15,6 +16,7 @@ class MetaData {
     transform: function (_, ret) {
       delete ret.__v;
       delete ret.uid;
+      ret.date = dayjs(ret.date).toISOString().split('Z')[0];
       return ret;
     },
   },
