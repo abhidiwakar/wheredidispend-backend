@@ -2,12 +2,11 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
+import { S3Service } from 'src/utils/s3.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { Transaction } from './schema/transaction.schema';
 import { QueuedTransaction } from './interface/queued-transaction.interface';
-import * as dayjs from 'dayjs';
-import { S3Service } from 'src/utils/s3.service';
+import { Transaction } from './schema/transaction.schema';
 
 @Injectable()
 export class TransactionService {
@@ -63,6 +62,10 @@ export class TransactionService {
         {
           name: 'UPI App',
           data: data.transactionData.upi_app,
+        },
+        {
+          name: 'Added Via',
+          data: 'WhatsApp',
         },
       ],
       amount: parseInt(data.transactionData.amount_paid),

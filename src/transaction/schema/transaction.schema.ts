@@ -16,7 +16,11 @@ class MetaData {
     transform: function (_, ret) {
       delete ret.__v;
       delete ret.uid;
-      ret.date = dayjs(ret.date).toISOString().split('Z')[0];
+      if (
+        ret.metadata?.find((f) => f.name === 'Added Via')?.data === 'WhatsApp'
+      ) {
+        ret.date = dayjs(ret.date).toISOString().split('Z')[0];
+      }
       return ret;
     },
   },
