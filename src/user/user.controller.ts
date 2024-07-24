@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  InternalServerErrorException,
   Logger,
   Patch,
   UseGuards,
@@ -18,6 +20,30 @@ export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
 
+  @Get('/get')
+  async getUserDetails(@User() user: IUser) {
+    try {
+      const firebaseData = await this.userService.getUserDetailsById(user.uid);
+      const localData = await this.userService.getUserMetaData(user.uid, 'uid');
+
+      const userData = {
+        name: firebaseData.displayName,
+        uid: firebaseData.uid,
+        email: firebaseData.email,
+        photoURL: firebaseData.photoURL,
+        phoneNumber: firebaseData.phoneNumber,
+        telegramId: localData?.telegramId,
+      };
+      return userData;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error(error);
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+  }
+
   @Get('/telegram-registration')
   async getTelegramRegistrationCode(@User() user: IUser) {
     try {
@@ -26,7 +52,7 @@ export class UserController {
         user.uid,
         validityInSeconds,
       );
-      const registrationMessage = `Register ${code}`;
+      const registrationMessage = `/register ${code}`;
       return {
         code,
         bot_handle: '@wheredidispend_bot',
@@ -35,10 +61,13 @@ export class UserController {
         message: `Code is valid for ${validityInSeconds / 60} minutes`,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       this.logger.error(error);
-      return {
-        message: 'Failed to generate the code! Please try again later.',
-      };
+      throw new InternalServerErrorException(
+        'Failed to generate the code! Please try again later.',
+      );
     }
   }
 
@@ -51,9 +80,9 @@ export class UserController {
       };
     } catch (error) {
       this.logger.error(error);
-      return {
-        message: 'Failed to update the user! Please try again later.',
-      };
+      throw new InternalServerErrorException(
+        'Failed to update the user! Please try again later.',
+      );
     }
   }
 
