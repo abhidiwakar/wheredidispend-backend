@@ -27,7 +27,7 @@ export class WhatsappController {
   @Post('/disable')
   async disableAddViaWhatsApp(@User() user: IUser) {
     try {
-      const userDetails = await this.userService.getUserDetails(user.uid);
+      const userDetails = await this.userService.getUserDetailsById(user.uid);
       if (!userDetails.phoneNumber) {
         throw new BadRequestException('Feature already disabled!');
       }

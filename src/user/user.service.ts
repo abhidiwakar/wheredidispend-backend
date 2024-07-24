@@ -1,17 +1,43 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
+import { generate as shortUUID } from 'short-uuid';
 import { TransactionService } from 'src/transaction/transaction.service';
+import { User } from './schema/user.schema';
+import { RedisService } from 'src/utils/redis.service';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(
+    @InjectModel(User.name)
+    private userModel: Model<User>,
+
     @InjectFirebaseAdmin() private readonly firebase: FirebaseAdmin,
     private readonly transactionService: TransactionService,
+
+    private readonly redisService: RedisService,
   ) {}
 
-  getUserDetails(id: string) {
+  async getTelegramRegistrationCode(uid: string, validityInSeconds: number) {
+    const code = shortUUID();
+    await this.redisService.setTempKeyValue(
+      `telegram-registration:${code}`,
+      uid,
+      validityInSeconds,
+    );
+    return code;
+  }
+
+  getUserDetailsById(id: string) {
     return this.firebase.auth.getUser(id);
+  }
+
+  getUserMetaData(uid: string, uidType: string) {
+    return this.userModel.findOne({
+      [uidType]: uid,
+    });
   }
 
   updatePhoneNumber(id: string, phone: string | null) {

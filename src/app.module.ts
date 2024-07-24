@@ -12,6 +12,8 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UtilsModule } from './utils/utils.module';
+import { AdminModule } from './admin/admin.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { UtilsModule } from './utils/utils.module';
     UserModule,
     WhatsappModule,
     UtilsModule,
+    AdminModule,
+    CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [

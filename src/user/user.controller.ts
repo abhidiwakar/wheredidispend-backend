@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Logger,
   Patch,
   UseGuards,
@@ -16,6 +17,30 @@ import { UserService } from './user.service';
 export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
+
+  @Get('/telegram-registration')
+  async getTelegramRegistrationCode(@User() user: IUser) {
+    try {
+      const validityInSeconds = 60 * 10;
+      const code = await this.userService.getTelegramRegistrationCode(
+        user.uid,
+        validityInSeconds,
+      );
+      const registrationMessage = `Register ${code}`;
+      return {
+        code,
+        bot_handle: '@wheredidispend_bot',
+        registrationMessage,
+        link: `https://telegram.me/wheredidispend_bot?text=${registrationMessage}`,
+        message: `Code is valid for ${validityInSeconds / 60} minutes`,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      return {
+        message: 'Failed to generate the code! Please try again later.',
+      };
+    }
+  }
 
   @Patch('update')
   async update(@User() { uid }: IUser, @Body() body: UpdateFirebaseUserDto) {
