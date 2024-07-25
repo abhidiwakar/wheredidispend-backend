@@ -3,9 +3,6 @@ export interface QueuedTransaction {
   bucketRegion: string;
   mediaKey: string;
   from: string;
-  id: string;
-  timestamp: string;
-  type: string;
   image: Image;
   senderInfo: SenderInfo;
   transactionData: TransactionData;
@@ -22,15 +19,11 @@ interface TransactionData {
 }
 
 interface SenderInfo {
-  name: string;
-  waId: string;
-  display_phone_number: string;
-  phone_number_id: string;
+  name?: string;
+  id: string;
 }
 
 interface Image {
-  mime_type: string;
-  sha256: string;
-  id: string;
+  mime_type?: string;
   caption?: string;
 }
