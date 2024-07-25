@@ -43,7 +43,7 @@ export class TransactionService {
 
   async processQueuedTransactions(data: QueuedTransaction) {
     this.logger.debug('TRANSACTION DATA: ', data);
-    const user = await this.firebase.auth.getUserByPhoneNumber(`+${data.from}`);
+    const user = await this.firebase.auth.getUser(data.senderInfo.id);
 
     return await this.create({
       metadata: [
