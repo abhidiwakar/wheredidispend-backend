@@ -3,6 +3,7 @@ export interface QueuedTransaction {
   bucketRegion: string;
   mediaKey: string;
   from: string;
+  source?: string; // Plugin name, Ex. Telegram, WhatsApp
   image: Image;
   senderInfo: SenderInfo;
   transactionData: TransactionData;

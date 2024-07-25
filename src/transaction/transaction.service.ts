@@ -65,7 +65,7 @@ export class TransactionService {
         },
         {
           name: 'Added Via',
-          data: 'WhatsApp',
+          data: data.source ?? 'Unknown',
         },
       ],
       amount: parseInt(data.transactionData.amount_paid),
