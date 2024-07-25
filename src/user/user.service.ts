@@ -21,12 +21,15 @@ export class UserService {
     private readonly redisService: RedisService,
   ) {}
 
-  async updateUser(uid: string, data: UpdateUserDto) {
+  async updateUser(uid: string, data?: UpdateUserDto, unset?: UpdateUserDto) {
     return this.userModel.updateOne(
       { uid },
       {
         $set: {
-          ...data,
+          ...(data ?? {}),
+        },
+        $unset: {
+          ...(unset ?? {}),
         },
       },
       {

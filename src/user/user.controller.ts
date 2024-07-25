@@ -71,6 +71,24 @@ export class UserController {
     }
   }
 
+  @Delete('/telegram-deregistration')
+  async deregisterTelegram(@User() user: IUser) {
+    try {
+      await this.userService.updateUser(user.uid, null, { telegramId: 1 });
+      return {
+        message: 'Deregistered for the service.',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error(error);
+      throw new InternalServerErrorException(
+        'Failed to generate the code! Please try again later.',
+      );
+    }
+  }
+
   @Patch('update')
   async update(@User() { uid }: IUser, @Body() body: UpdateFirebaseUserDto) {
     try {
