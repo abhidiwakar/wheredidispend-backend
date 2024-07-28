@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Group } from '../group/schema/group.schema';
-import * as dayjs from 'dayjs';
-import { Constants } from 'src/utils/constants';
 
 export type TransactionDocument = HydratedDocument<Transaction>;
 
@@ -17,10 +15,6 @@ class MetaData {
     transform: function (_, ret) {
       delete ret.__v;
       delete ret.uid;
-      const addedVia = ret.metadata?.find((f) => f.name === 'Added Via')?.data;
-      if (addedVia && Constants.DataPlugins.includes(addedVia)) {
-        ret.date = dayjs(ret.date).toISOString().split('Z')[0];
-      }
       return ret;
     },
   },

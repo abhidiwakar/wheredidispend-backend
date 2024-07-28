@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsDateString,
   IsISO4217CurrencyCode,
   IsNotEmpty,
   IsNumber,
@@ -9,6 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { IsCustomDate } from 'src/common/validators/custom-date.validator';
 
 class MetaData {
   @IsString()
@@ -30,7 +30,8 @@ export class CreateTransactionDto {
   @IsNumber()
   amount: number;
 
-  @IsDateString()
+  @IsNotEmpty()
+  @IsCustomDate()
   date: string;
 
   @IsOptional()

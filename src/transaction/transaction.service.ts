@@ -234,9 +234,10 @@ export class TransactionService {
       },
       {
         $addFields: {
-          dateOnly: {
-            $dateToString: { format: '%Y-%m-%d', date: '$date' },
-          },
+          // dateOnly: {
+          //   $dateToString: { format: '%Y-%m-%d', date: '$date' },
+          // },
+          dateOnly: '$date',
         },
       },
       {
