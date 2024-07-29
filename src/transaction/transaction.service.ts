@@ -276,13 +276,18 @@ export class TransactionService {
       },
       {
         $group: {
-          _id: '$uid',
+          _id: {
+            uid: '$uid',
+            currency: '$currency',
+          },
           totalAmount: { $sum: '$amount' },
         },
       },
       {
         $project: {
           _id: 0,
+          currency: '$_id.currency',
+          totalAmount: 1,
         },
       },
     ]);
