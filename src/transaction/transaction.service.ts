@@ -79,12 +79,18 @@ export class TransactionService {
     });
   }
 
-  averageSpending(uid: string) {
+  averageSpending(uid: string, groupId?: string) {
+    const filter = {
+      uid,
+    };
+
+    if (groupId) {
+      filter['group'] = new Types.ObjectId(groupId);
+    }
+
     return this.transactionModel.aggregate([
       {
-        $match: {
-          uid,
-        },
+        $match: filter,
       },
       {
         $group: {
@@ -116,11 +122,16 @@ export class TransactionService {
     pageSize = 10,
     orderBy = 'createdAt',
     order = 'desc',
+    groupId: string | undefined,
   ) {
     // const skip = (page - 1) * pageSize;
     const filterQuery = {
       uid,
     };
+
+    if (groupId) {
+      filterQuery['group'] = new Types.ObjectId(groupId);
+    }
 
     if (firstId && lastId) {
       filterQuery['$or'] = [
@@ -214,10 +225,16 @@ export class TransactionService {
     uid: string,
     startDate?: string,
     endDate?: string,
+    group?: string,
   ) {
     const match = {
       uid,
     };
+
+    if (group) {
+      match['group'] = new Types.ObjectId(group);
+    }
+
     const dateFilter = {};
     if (startDate) {
       dateFilter['$gte'] = startDate;
@@ -261,18 +278,30 @@ export class TransactionService {
     ]);
   }
 
-  countTransactionByUserId(userId: string) {
-    return this.transactionModel.countDocuments({
+  countTransactionByUserId(userId: string, group?: string) {
+    const filter = {
       uid: userId,
-    });
+    };
+
+    if (group) {
+      filter['group'] = new Types.ObjectId(group);
+    }
+
+    return this.transactionModel.countDocuments(filter);
   }
 
-  sumTransactionAmountByUserId(userId: string) {
+  sumTransactionAmountByUserId(userId: string, group?: string) {
+    const filter = {
+      uid: userId,
+    };
+
+    if (group) {
+      filter['group'] = new Types.ObjectId(group);
+    }
+
     return this.transactionModel.aggregate([
       {
-        $match: {
-          uid: userId,
-        },
+        $match: filter,
       },
       {
         $group: {

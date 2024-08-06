@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   Patch,
   Post,
@@ -16,8 +15,8 @@ import { IUser, User } from 'src/common/decorators/user.decorator';
 import { CreateAttachmentDto } from './dto/create-attachment.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { TransactionService } from './transaction.service';
 import { GroupService } from './group/group.service';
+import { TransactionService } from './transaction.service';
 
 @UseGuards(AuthGuard)
 @Controller('transaction')
@@ -69,6 +68,7 @@ export class TransactionController {
     @Query('limit') pageSize: number,
     @Query('orderBy') orderBy: string,
     @Query('order') order: string,
+    @Query('groupId') groupId: string,
     @User() user: IUser,
   ) {
     return this.transactionService.findAll(
@@ -78,13 +78,15 @@ export class TransactionController {
       pageSize,
       orderBy,
       order,
+      groupId,
     );
   }
 
   @Get('get/count')
-  async getCount(@User() user: IUser) {
+  async getCount(@User() user: IUser, @Query('groupId') groupId?: string) {
     const count = await this.transactionService.countTransactionByUserId(
       user.uid,
+      groupId,
     );
     return {
       count,
@@ -92,22 +94,29 @@ export class TransactionController {
   }
 
   @Get('get/total')
-  async getTotal(@User() user: IUser) {
-    return this.transactionService.sumTransactionAmountByUserId(user.uid);
+  async getTotal(@User() user: IUser, @Query('groupId') groupId?: string) {
+    return this.transactionService.sumTransactionAmountByUserId(
+      user.uid,
+      groupId,
+    );
   }
 
   @Get('get/graph')
-  async getGraph(@User() user: IUser) {
+  async getGraph(@User() user: IUser, @Query('groupId') groupId?: string) {
     const data = await this.transactionService.findTransactionSumWithDateGroup(
       user.uid,
+      groupId,
     );
     return data;
   }
 
   @Get('get/average')
-  @Header('Cache-Control', 'max-age=3600')
-  async averageSpending(@User() user: IUser) {
-    return this.transactionService.averageSpending(user.uid);
+  // @Header('Cache-Control', 'max-age=3600')
+  async averageSpending(
+    @User() user: IUser,
+    @Query('groupId') groupId?: string,
+  ) {
+    return this.transactionService.averageSpending(user.uid, groupId);
   }
 
   @Get('get/:id')
